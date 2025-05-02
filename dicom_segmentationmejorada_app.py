@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 from skimage import measure
 from stl import mesh
 import os
+import tempfile
 
 st.set_page_config(page_title="DICOM SEGMENTATION", page_icon="🧠", layout="wide")
 
@@ -69,14 +70,13 @@ elif menu == "📦 Exportar STL":
             for j in range(3):
                 malla.vectors[i][j] = verts[f[j], :]
 
-        output_file = "exportado.stl"
-        malla.save(output_file)
-
-        st.success("✅ STL exportado exitosamente.")
-        with open(output_file, "rb") as file:
-            st.download_button("Descargar STL", file, file_name="exportado.stl")
-
-        os.remove(output_file)
+        # Exportar STL a un archivo temporal
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".stl") as tmp_file:
+            malla.save(tmp_file.name)
+            st.success("✅ STL exportado exitosamente.")
+            with open(tmp_file.name, "rb") as file:
+                st.download_button("Descargar STL", file, file_name="exportado.stl")
+            
 
     else:
         st.warning("⚡ Debes segmentar una imagen primero en 'Segmentar Imagen'.")
